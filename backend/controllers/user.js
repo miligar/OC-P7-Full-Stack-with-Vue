@@ -14,7 +14,7 @@ exports.signup = (req, res, next) => {
    .is()
    .min(8) // Minimum length 8
    .is()
-   .max(100) // Maximum length 100
+   .max(20) // Maximum length 20
    .has()
    .uppercase() // Must have uppercase letters
    .has()
@@ -26,7 +26,7 @@ exports.signup = (req, res, next) => {
    .spaces() // Should not have spaces
    .is()
    .not()
-   .oneOf(["Passw0rd", "Password123"]); // Blacklist these values
+   .oneOf(["Passw0rd", "Password123", "passw0rd", "password123"]); // Blacklist these values
 
   if (schema.validate(req.body.password)) {
    validData = true;
@@ -103,15 +103,13 @@ exports.login = (req, res, next) => {
    }
    if (user.rowCount == 0) {
     console.log("Not a valid email!");
-    return res.status(401).send("Not a valid email!");
+    return res.status(401).json("Not a valid email!");
    }
    if (user.rowCount != 0) {
     bcrypt.compare(req.body.password, user.rows[0].password).then((valid) => {
      if (!valid) {
       console.log("Incorrect password!");
-      return res.status(401).json({
-       error: new Error("Incorrect password!"),
-      });
+      return res.status(401).json("Incorrect password!");
      }
      const token = jwt.sign(
       { userId: user.rows[0].userid },
@@ -143,7 +141,7 @@ exports.deleteUser = (req, res, next) => {
    }
    if (user.rowCount == 0) {
     console.log("User does not exist!");
-    return res.status(404).send("User does not exist!");
+    return res.status(404).json("User does not exist!");
    } else if (user.rowCount != 0) {
     if (user.rows[0].userid == req.auth.userId) {
      pool.query(
@@ -171,24 +169,22 @@ exports.deleteUser = (req, res, next) => {
                 error: error,
                });
               }
-              console.log("User has been deleted");
-              res.status(201).send("User has been deleted");
              }
             );
            }
           }
+          console.log("User has been deleted");
+          res.status(201).json("User has been deleted");
          } else {
           console.log("User has been deleted");
-          res.status(201).send("User has been deleted");
+          res.status(201).json("User has been deleted");
          }
         });
        }
       }
      );
     } else if (req.auth.userId != req.body.userId) {
-     return res.status(401).json({
-      error: new Error("Not authorized!"),
-     });
+     return res.status(401).json("Not authorized!");
     }
    }
   }
@@ -207,7 +203,7 @@ exports.modifyUser = (req, res, next) => {
    }
    if (user.rowCount == 0) {
     console.log("User does not exist!");
-    return res.status(404).send("User does not exist!");
+    return res.status(404).json("User does not exist!");
    } else if (user.rowCount != 0) {
     if (user.rows[0].userid == req.auth.userId) {
      if (emailValidator.validate(req.body.email)) {
@@ -223,18 +219,34 @@ exports.modifyUser = (req, res, next) => {
         if (error) {
          throw error;
         }
+        pool.query(
+         `UPDATE posts SET name = $1 WHERE userid = $2`,
+         [modUser.name, req.params.id],
+         (error) => {
+          if (error) {
+           throw error;
+          }
+         }
+        );
+        pool.query(
+         `UPDATE comments SET name = $1 WHERE userid = $2`,
+         [modUser.name, req.params.id],
+         (error) => {
+          if (error) {
+           throw error;
+          }
+         }
+        );
         console.log("Profile has been updated");
-        res.status(201).send("Profile has been updated");
+        res.status(201).json("Profile has been updated");
        }
       );
      } else {
       console.log("Invalid Email");
-      res.status(400).send("Invalid Email");
+      res.status(400).json("Invalid Email");
      }
     } else if (req.auth.userId != req.body.userId) {
-     return res.status(401).json({
-      error: new Error("Not authorized!"),
-     });
+     return res.status(401).json("Not authorized!");
     }
    }
   }

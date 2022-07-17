@@ -12,7 +12,7 @@
     >
      <router-link class="routerlink" :to="{ path: 'posts/' + post.postid }">
       <div class="postHeader">
-       <div>
+       <div class="postedBy">
         <p>Posted by:</p>
         <p>
          <strong>{{ post.name }}</strong>
@@ -86,14 +86,14 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #allPosts {
  width: 80%;
- /* height: 80vh; */
  margin: auto;
- margin-top: -1rem;
- padding: 8rem 0.5rem;
+ margin-top: 8rem;
  background-color: white;
+ display: flex;
+ flex-direction: column;
 }
 #welcome {
  font-size: 2rem;
@@ -104,8 +104,10 @@ export default {
  margin: 2rem 0;
 }
 .unread {
- border: 5px solid #00b3ba;
- border-radius: 1.3rem;
+ border: 2px solid #00b3ba;
+ box-shadow: 1px 1px 10px 1px #00b3ba;
+
+ border-radius: 1.1rem;
  margin-right: -1rem;
  margin-left: -1rem;
 }
@@ -149,5 +151,43 @@ ul {
  -webkit-box-orient: vertical;
  -webkit-line-clamp: 4;
  overflow: hidden;
+}
+@media screen and (max-width: 768px) {
+ #allPosts {
+  width: 90%;
+  margin-top: 4rem;
+ }
+ #welcome {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  margin: 0.5rem;
+ }
+
+ .onePost {
+  margin: 1.5rem 0;
+ }
+ .postHeader {
+  display: flex;
+  flex-direction: column;
+ }
+ .postedBy {
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+ }
+ .date {
+  padding: 0 0 0.5rem 0;
+  & p {
+   font-size: 0.7rem;
+   padding: 0;
+  }
+ }
+ .title {
+  padding: 0.5rem;
+  font-size: 0.8rem;
+ }
+ .msgArea {
+  font-size: 0.9rem;
+ }
 }
 </style>

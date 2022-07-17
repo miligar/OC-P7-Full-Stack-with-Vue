@@ -1,38 +1,31 @@
 const pool = require("../pool");
 
 exports.createComment = (req, res, next) => {
- if (req.auth.userId != req.body.userId) {
-  return res.status(401).json("UserId incorrect");
- } else if (req.auth.userId === req.body.userId) {
-  const comment = {
-   postId: req.body.postId,
-   userId: req.body.userId,
-   comment: req.body.comment,
-  };
-  pool.query(
-   `SELECT * FROM users WHERE userid = $1`,
-   [req.body.userId],
-   (error, user) => {
-    if (error) {
-     return res.status(401).json({
-      error: error,
-     });
-    }
-    pool.query(
-     `INSERT INTO comments(postid, userid, name, comment, creation_date) 
-            VALUES ($1, $2, $3, $4, NOW()::timestamp)`,
-     [comment.postId, comment.userId, user.rows[0].name, comment.comment],
-     (error) => {
-      if (error) {
-       throw error;
-      }
-      console.log("New comment has been registered");
-      res.status(201).json("New comment has been registered");
-     }
-    );
+ const comment = {
+  postId: req.body.postId,
+  comment: req.body.comment,
+ };
+ pool.query(
+  `SELECT * FROM users WHERE userid = $1`,
+  [req.auth.userId],
+  (error, user) => {
+   if (error) {
+    return res.status(401).json("Unauthorized!");
    }
-  );
- }
+   pool.query(
+    `INSERT INTO comments(postid, userid, name, comment, creation_date) 
+            VALUES ($1, $2, $3, $4, NOW()::timestamp)`,
+    [comment.postId, req.auth.userId, user.rows[0].name, comment.comment],
+    (error) => {
+     if (error) {
+      throw error;
+     }
+     console.log("New comment has been registered");
+     res.status(201).json("New comment has been registered");
+    }
+   );
+  }
+ );
 };
 
 exports.deleteComment = (req, res, next) => {
@@ -47,7 +40,7 @@ exports.deleteComment = (req, res, next) => {
    }
    if (comment.rowCount == 0) {
     console.log("Comment does not exist!");
-    return res.status(404).send("Comment does not exist!");
+    return res.status(404).json("Comment does not exist!");
    } else if (comment.rowCount != 0) {
     if (comment.rows[0].userid == req.auth.userId) {
      pool.query(
@@ -58,7 +51,7 @@ exports.deleteComment = (req, res, next) => {
         throw error;
        }
        console.log("Comment has been deleted");
-       res.status(201).send("Comment has been deleted");
+       res.status(201).json("Comment has been deleted");
       }
      );
     } else if (comment.rows[0].userid != req.auth.userId) {
@@ -80,13 +73,11 @@ exports.deleteComment = (req, res, next) => {
            throw error;
           }
           console.log("Comment has been deleted");
-          res.status(201).send("Comment has been deleted");
+          res.status(201).json("Comment has been deleted");
          }
         );
        } else {
-        return res.status(401).json({
-         error: new Error("UserId incorrect"),
-        });
+        return res.status(401).json("UserId incorrect");
        }
       }
      );
@@ -108,7 +99,7 @@ exports.modifyComment = (req, res, next) => {
    }
    if (comment.rowCount == 0) {
     console.log("Comment does not exist!");
-    return res.status(404).send("Comment does not exist!");
+    return res.status(404).json("Comment does not exist!");
    } else if (comment.rowCount != 0) {
     if (comment.rows[0].userid == req.auth.userId) {
      pool.query(
@@ -119,12 +110,12 @@ exports.modifyComment = (req, res, next) => {
         throw error;
        }
        console.log("Comment has been updated");
-       res.status(201).send("Comment has been updated");
+       res.status(201).json("Comment has been updated");
       }
      );
     } else {
      console.log("Unauthorized!");
-     return res.status(403).send("Unauthorized!");
+     return res.status(403).json("Unauthorized!");
     }
    }
   }

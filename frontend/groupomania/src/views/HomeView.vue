@@ -1,26 +1,31 @@
 <template>
  <main>
-  <div class="home">
-   <img alt="Logo" src="../assets/icon-above-font.svg" />
-   <!-- <LoginComp msg="Welcome to Groupomania" /> -->
-   <h1>Welcome to Groupomania!</h1>
-   <h2>Email</h2>
-   <input type="text" v-model="email" />
-   <h2>Password</h2>
-   <p>
-    <input type="password" v-model="password" />
-   </p>
-   <button class="bodyButton" v-on:click="logIn">Log In</button>
+  <div id="home">
+   <div id="logo">
+    <img alt="Logo" src="../assets/icon-above-font.svg" />
+   </div>
 
-   <nav>
-    <p>Or create a new account</p>
-    <router-link to="/signup">
-     <button class="bodyButton" v-on:click="signUp">
-      Sign Up
-     </button></router-link
-    >
-   </nav>
-   <router-view />
+   <div id="welcome">
+    <!-- <LoginComp msg="Welcome to Groupomania" /> -->
+    <h1>Welcome to Groupomania!</h1>
+    <h2>Email</h2>
+    <input type="text" v-model="email" />
+    <h2>Password</h2>
+
+    <input type="password" v-model="password" />
+    <p class="serverMessage">{{ serverMessage }}</p>
+    <div>
+     <button class="bodyButton" v-on:click="logIn">Log In</button>
+    </div>
+    <nav id="toSignUp">
+     <p>Or create a new account</p>
+     <router-link to="/signup">
+      <button class="bodyButton" v-on:click="signUp">
+       Sign Up
+      </button></router-link
+     >
+    </nav>
+   </div>
   </div>
  </main>
 </template>
@@ -31,6 +36,7 @@ export default {
   return {
    email: "",
    password: "",
+   serverMessage: " ",
   };
  },
  methods: {
@@ -53,9 +59,12 @@ export default {
 
       .then((data) => {
        console.log(data);
-       localStorage.setItem("user", JSON.stringify(data));
+
        if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data));
         this.$router.push("/posts");
+       } else {
+        this.serverMessage = data;
        }
       });
     })
@@ -68,16 +77,53 @@ export default {
 };
 </script>
 
-<style>
-main {
+<style lang="scss" scoped>
+#home {
  height: 100%;
+ display: flex;
+ flex-flow: row wrap;
+ justify-content: space-around;
+ margin-top: 2rem;
 }
-img {
- /* max-height: 30vh; */
- max-width: 30rem;
+
+#logo {
+ width: 30%;
+ margin: auto;
+ margin-top: 3rem;
+ padding: 1rem;
 }
-.home {
- margin-bottom: 8rem;
+
+#welcome {
+ width: 40%;
+ margin: auto;
+ padding: 1rem;
+}
+#toSignUp {
+ margin-top: 2rem;
+}
+.serverMessage {
+ color: red;
+}
+
+@media screen and (max-width: 768px) {
+ #home {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+ }
+ #welcome {
+  width: 80%;
+  margin: auto;
+  padding: 1rem;
+  padding-top: 0;
+ }
+ #logo {
+  width: 50%;
+  margin: auto;
+  padding-top: 0;
+ }
+ #welcome {
+ }
 }
 </style>
 

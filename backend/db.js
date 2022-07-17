@@ -26,9 +26,15 @@ pgtools.createdb(config, "groupomania", function (err, res) {
    });
   }
   createPool()
-   .then(
-    () => pool.query(`DROP TABLE users;`),
-    console.log("Creating tables...")
+   .then(() =>
+    pool.query(`SELECT * FROM users`, (error, users) => {
+     if (error) {
+      console.log("Creating tables...");
+      return true;
+     } else {
+      pool.query(`DROP TABLE users;`), console.log("Creating tables...");
+     }
+    })
    )
    .then(() =>
     pool.query(
@@ -46,43 +52,43 @@ pgtools.createdb(config, "groupomania", function (err, res) {
    .then(() =>
     pool.query(
      `CREATE TABLE posts(
-          postID uuid DEFAULT gen_random_uuid(),
-          userID uuid NOT NULL,
-          name VARCHAR(100) NOT NULL,
-          media VARCHAR(100),
-          title VARCHAR(100) NOT NULL,
-          message VARCHAR(5000) NOT NULL,
-          creation_date TIMESTAMP,
-          modify_date TIMESTAMP,
-          readBy TEXT [],
-          PRIMARY KEY(postID),
-          CONSTRAINT fk_user
-            FOREIGN KEY(userID)
-            REFERENCES users(userID)
-            ON DELETE CASCADE
-          );`
+           postID uuid DEFAULT gen_random_uuid(),
+           userID uuid NOT NULL,
+           name VARCHAR(100) NOT NULL,
+           media VARCHAR(100),
+           title VARCHAR(100) NOT NULL,
+           message VARCHAR(5000) NOT NULL,
+           creation_date TIMESTAMP,
+           modify_date TIMESTAMP,
+           readBy TEXT [],
+           PRIMARY KEY(postID),
+           CONSTRAINT fk_user
+             FOREIGN KEY(userID)
+             REFERENCES users(userID)
+             ON DELETE CASCADE
+           );`
     )
    )
    .then(() =>
     pool.query(
      `CREATE TABLE comments(
-          commentID uuid DEFAULT gen_random_uuid(),
-          postID uuid NOT NULL,
-          userID uuid NOT NULL,
-          name VARCHAR(100) NOT NULL,
-          comment VARCHAR(5000) NOT NULL,
-          creation_date TIMESTAMP,
-          modify_date TIMESTAMP,
-          PRIMARY KEY(commentID),
-          CONSTRAINT fk_user
-            FOREIGN KEY(userID)
-            REFERENCES users(userID)
-            ON DELETE CASCADE,
-          CONSTRAINT fk_post
-            FOREIGN KEY(postID)
-            REFERENCES posts(postID)
-            ON DELETE CASCADE
-          );`
+           commentID uuid DEFAULT gen_random_uuid(),
+           postID uuid NOT NULL,
+           userID uuid NOT NULL,
+           name VARCHAR(100) NOT NULL,
+           comment VARCHAR(5000) NOT NULL,
+           creation_date TIMESTAMP,
+           modify_date TIMESTAMP,
+           PRIMARY KEY(commentID),
+           CONSTRAINT fk_user
+             FOREIGN KEY(userID)
+             REFERENCES users(userID)
+             ON DELETE CASCADE,
+           CONSTRAINT fk_post
+             FOREIGN KEY(postID)
+             REFERENCES posts(postID)
+             ON DELETE CASCADE
+           );`
     )
    )
    .catch((error) => {

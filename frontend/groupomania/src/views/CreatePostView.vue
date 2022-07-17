@@ -4,9 +4,17 @@
   <section id="createPost">
    <h1><strong>CREATE A POST</strong></h1>
    <p>Title</p>
-   <input id="title" type="text" v-model="title" />
+   <input id="title" type="text" v-model="title" maxlength="100" />
+   <p class="msgLength">{{ calculateLength("title", 100) }}</p>
    <p>Message</p>
-   <textarea cols="40" id="message" type="text" v-model="message" />
+   <textarea
+    cols="40"
+    id="message"
+    type="text"
+    v-model="message"
+    maxlength="5000"
+   />
+   <p class="msgLength">{{ calculateLength("message", 5000) }}</p>
    <p>Want to include an image? (png, jpg, jpeg, gif)</p>
    <input
     id="file"
@@ -15,6 +23,8 @@
     @change="getFile()"
     ref="file"
    />
+   <img v-if="file" class="pict" :src="fileSource" />
+
    <button class="bodyButton" v-on:click="sendPost">Send post</button>
   </section>
  </main>
@@ -29,11 +39,21 @@ export default {
    message: "",
    media: "",
    file: null,
+   fileSource: "",
   };
  },
+
  methods: {
+  calculateLength(para, maxLength) {
+   let count = eval(`this.${para}`).length;
+   let charLeft = maxLength - count;
+   let msgLength = charLeft.toString() + "/" + maxLength + " Characters left";
+
+   return msgLength;
+  },
   getFile() {
    this.file = this.$refs.file.files[0];
+   this.fileSource = URL.createObjectURL(this.$refs.file.files[0]);
   },
   sendPost() {
    let postForm = [];
@@ -41,12 +61,7 @@ export default {
    let post = {};
 
    if (this.file != null) {
-    console.log(
-     JSON.stringify(JSON.parse(localStorage.getItem("user")).userId)
-    );
-
     post = JSON.stringify({
-     userId: JSON.parse(localStorage.getItem("user")).userId,
      title: this.title,
      message: this.message,
     });
@@ -65,7 +80,6 @@ export default {
     };
    } else {
     postForm = {
-     userId: JSON.parse(localStorage.getItem("user")).userId,
      title: this.title,
      message: this.message,
     };
@@ -103,35 +117,52 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #createPost {
- padding: 10rem 0.5rem;
-
+ margin-top: 7rem;
+ //  padding: 1rem 0 1rem 0;
+ //  margin-bottom: 5rem;
  button {
   display: block;
   margin: auto;
  }
-
+ h1 {
+  margin-bottom: 0;
+ }
  #title {
   width: 20rem;
+  border-radius: 0.5rem;
+  outline: none;
  }
  #message {
-  width: 30rem;
-  height: 20rem;
+  width: 20rem;
+  height: 10rem;
   border: none;
   display: inline;
   font-family: inherit;
   font-size: inherit;
   padding: none;
   width: auto;
+  border-radius: 0.5rem;
+  outline: none;
  }
-
+ .msgLength {
+  width: 20rem;
+  margin: auto;
+  // margin-bottom: 1rem;
+  font-size: 0.7rem;
+  text-align: right;
+ }
  #file {
-  display: block;
-  margin-left: 45%;
+  width: 20rem;
   margin-bottom: 1rem;
-
-  position: center;
  }
+}
+.pict {
+ display: block;
+ max-width: 20rem;
+ height: auto;
+ padding: 1rem 0;
+ margin: auto;
 }
 </style>

@@ -4,85 +4,77 @@ const fs = require("fs");
 exports.createPost = (req, res, next) => {
  if (req.file) {
   req.body.post = JSON.parse(req.body.post);
-  if (req.body.post.userId != req.auth.userId) {
-   console.log(req.body.post.userId);
-   console.log(req.auth.userId);
-   return res.status(401).json("UserId incorrect");
-  } else if (req.body.post.userId === req.auth.userId) {
-   const url = req.protocol + "://" + req.get("host");
+  const url = req.protocol + "://" + req.get("host");
 
-   const post = {
-    userId: req.body.post.userId,
-    title: req.body.post.title,
-    message: req.body.post.message,
-    media: url + "/images/" + req.file.filename,
-   };
-   pool.query(
-    `SELECT * FROM users WHERE userid = $1`,
-    [req.body.post.userId],
-    (error, user) => {
-     if (error) {
-      return res.status(401).json({
-       error: error,
-      });
-     }
-     pool.query(
-      `INSERT INTO posts(userid, name, title, message, media, readby, creation_date) 
+  const post = {
+   title: req.body.post.title,
+   message: req.body.post.message,
+   media: url + "/images/" + req.file.filename,
+  };
+  pool.query(
+   `SELECT * FROM users WHERE userid = $1`,
+   [req.auth.userId],
+   (error, user) => {
+    if (error) {
+     return res.status(401).json({
+      error: error,
+     });
+    }
+    pool.query(
+     `INSERT INTO posts(userid, name, title, message, media, readby, creation_date) 
             VALUES ($1, $2, $3, $4, $5, ARRAY[$6], NOW()::timestamp)`,
-      [
-       post.userId,
-       user.rows[0].name,
-       post.title,
-       post.message,
-       post.media,
-       post.userId,
-      ],
-      (error) => {
-       if (error) {
-        throw error;
-       }
-       console.log("New post has been registered");
-       res.status(201).json("New post has been registered");
+     [
+      req.auth.userId,
+      user.rows[0].name,
+      req.body.post.title,
+      post.message,
+      post.media,
+      req.auth.userId,
+     ],
+     (error) => {
+      if (error) {
+       throw error;
       }
-     );
-    }
-   );
-  }
- } else {
-  if (req.auth.userId != req.body.userId) {
-   console.log("secon" + req.body.userId);
-   console.log(req.auth.userId);
-   return res.status(401).json("UserId incorrect");
-  } else if (req.auth.userId === req.body.userId) {
-   const post = {
-    title: req.body.title,
-    userId: req.body.userId,
-    message: req.body.message,
-   };
-   pool.query(
-    `SELECT * FROM users WHERE userid = $1`,
-    [req.body.userId],
-    (error, user) => {
-     if (error) {
-      return res.status(401).json({
-       error: error,
-      });
+      console.log("New post has been registered");
+      res.status(201).json("New post has been registered");
      }
-     pool.query(
-      `INSERT INTO posts(userid, name, title, message, readby, creation_date) 
-            VALUES ($1, $2, $3, $4, ARRAY[$5], NOW()::timestamp)`,
-      [post.userId, user.rows[0].name, post.title, post.message, post.userId],
-      (error) => {
-       if (error) {
-        throw error;
-       }
-       console.log("New post has been registered");
-       res.status(201).json("New post has been registered");
-      }
-     );
+    );
+   }
+  );
+ } else {
+  const post = {
+   title: req.body.title,
+   message: req.body.message,
+  };
+  pool.query(
+   `SELECT * FROM users WHERE userid = $1`,
+   [req.auth.userId],
+   (error, user) => {
+    if (error) {
+     return res.status(401).json({
+      error: error,
+     });
     }
-   );
-  }
+    pool.query(
+     `INSERT INTO posts(userid, name, title, message, readby, creation_date) 
+            VALUES ($1, $2, $3, $4, ARRAY[$5], NOW()::timestamp)`,
+     [
+      req.auth.userId,
+      user.rows[0].name,
+      post.title,
+      post.message,
+      req.auth.userId,
+     ],
+     (error) => {
+      if (error) {
+       throw error;
+      }
+      console.log("New post has been registered");
+      res.status(201).json("New post has been registered");
+     }
+    );
+   }
+  );
  }
 };
 
@@ -98,7 +90,7 @@ exports.deletePost = (req, res, next) => {
    }
    if (post.rowCount == 0) {
     console.log("Post does not exist!");
-    return res.status(404).send("Post does not exist!");
+    return res.status(404).json("Post does not exist!");
    } else if (post.rowCount != 0) {
     if (post.rows[0].userid == req.auth.userId) {
      pool.query(
@@ -113,12 +105,12 @@ exports.deletePost = (req, res, next) => {
         fs.unlink("images/" + filename, () => {});
        }
        console.log("Post has been deleted");
-       res.status(201).send("Post has been deleted");
+       res.status(201).json("Post has been deleted");
       }
      );
     } else {
      console.log("Unauthorized!");
-     return res.status(403).send("Unauthorized!");
+     return res.status(403).json("Unauthorized!");
     }
    }
   }
@@ -231,18 +223,17 @@ exports.modifyPost = (req, res, next) => {
    }
    if (post.rowCount == 0) {
     console.log("Post does not exist!");
-    return res.status(404).send("Post does not exist!");
+    return res.status(404).json("Post does not exist!");
    } else if (post.rowCount != 0) {
     if (post.rows[0].userid == req.auth.userId) {
      if (req.file) {
       console.log("file required");
       const url = req.protocol + "://" + req.get("host");
       req.body.post = JSON.parse(req.body.post);
+
       if (post.rows[0].media != null) {
-       console.log("file exists");
        const filename = post.rows[0].media.split("/images/")[1];
        fs.unlink("images/" + filename, () => {
-        console.log("New image added");
         console.log("Old image " + filename + " deleted");
        });
       }
@@ -252,7 +243,7 @@ exports.modifyPost = (req, res, next) => {
        media: url + "/images/" + req.file.filename,
       };
       pool.query(
-       `UPDATE posts SET title = $1 message = $2, media = $3, modify_date = NOW()::timestamp WHERE postid = $4`,
+       `UPDATE posts SET title = $1, message = $2, media = $3, modify_date = NOW()::timestamp WHERE postid = $4`,
        [
         postNewData.title,
         postNewData.message,
@@ -264,26 +255,24 @@ exports.modifyPost = (req, res, next) => {
          throw error;
         }
         console.log("Post has been updated");
-        res.status(201).send("Post has been updated");
+        res.status(201).json("Post has been updated");
        }
       );
      } else if (req.body.media == null) {
       const postNewData = {
        title: req.body.title,
-
        message: req.body.message,
        media: null,
       };
       if (post.rows[0].media != null) {
        const filename = post.rows[0].media.split("/images/")[1];
        fs.unlink("images/" + filename, () => {
-        console.log("New image added");
         console.log("Old image " + filename + " deleted");
        });
       }
 
       pool.query(
-       `UPDATE posts SET title = $1 message = $2, media = $3, modify_date = NOW()::timestamp WHERE postid = $4`,
+       `UPDATE posts SET title = $1, message = $2, media = $3, modify_date = NOW()::timestamp WHERE postid = $4`,
        [
         postNewData.title,
         postNewData.message,
@@ -295,25 +284,25 @@ exports.modifyPost = (req, res, next) => {
          throw error;
         }
         console.log("Post has been updated");
-        res.status(201).send("Post has been updated");
+        res.status(201).json("Post has been updated");
        }
       );
      } else {
       pool.query(
-       `UPDATE posts SET message = $1, modify_date = NOW()::timestamp WHERE postid = $2`,
-       [req.body.message, req.params.id],
+       `UPDATE posts SET title = $1, message = $2, modify_date = NOW()::timestamp WHERE postid = $3`,
+       [req.body.title, req.body.message, req.params.id],
        (error) => {
         if (error) {
          throw error;
         }
         console.log("Post has been updated");
-        res.status(201).send("Post has been updated");
+        res.status(201).json("Post has been updated");
        }
       );
      }
     } else {
      console.log("Unauthorized!");
-     return res.status(403).send("Unauthorized!");
+     return res.status(403).json("Unauthorized!");
     }
    }
   }
