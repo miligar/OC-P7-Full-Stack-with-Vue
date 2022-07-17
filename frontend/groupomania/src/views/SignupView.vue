@@ -158,7 +158,7 @@ export default {
  margin-top: 2rem;
 }
 
-.logo {
+#logo {
  width: 30%;
  margin: auto;
  margin-top: 3rem;

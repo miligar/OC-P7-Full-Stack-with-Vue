@@ -122,8 +122,6 @@ export default {
   margin: auto;
   padding-top: 0;
  }
- #welcome {
- }
 }
 </style>
 

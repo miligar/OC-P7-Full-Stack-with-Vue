@@ -50,10 +50,12 @@ p {
 }
 input {
  width: 70%;
+ border-radius: 0.5rem;
 }
 textarea {
  width: 70%;
  height: 5rem;
+ border-radius: 0.5rem;
 }
 nav {
  // padding: 30px;
@@ -64,10 +66,10 @@ nav {
   text-decoration: none;
   text-align: center;
 
-  &.router-link-exact-active {
-   color: #42b983;
-   text-align: center;
-  }
+  // &.router-link-exact-active {
+  //  color: #42b983;
+  //  text-align: center;
+  // }
  }
 }
 ul {
@@ -113,7 +115,7 @@ footer {
   padding: 0.1rem 0;
  }
  p {
-  font-size: 1rem;
+  font-size: 0.7rem;
   padding: 0.3rem;
   margin: 0;
  }
@@ -133,6 +135,7 @@ footer {
   border-radius: 0.5rem;
   background-color: #0d1f3b;
   color: white;
+  font-size: 0.7rem;
  }
 }
 </style>

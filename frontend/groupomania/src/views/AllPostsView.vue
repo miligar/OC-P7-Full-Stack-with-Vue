@@ -154,7 +154,7 @@ ul {
 }
 @media screen and (max-width: 768px) {
  #allPosts {
-  width: 90%;
+  width: 95%;
   margin-top: 4rem;
  }
  #welcome {
@@ -173,21 +173,28 @@ ul {
  .postedBy {
   margin: auto;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
  }
  .date {
   padding: 0 0 0.5rem 0;
   & p {
-   font-size: 0.7rem;
+   font-size: 0.5rem;
    padding: 0;
   }
  }
  .title {
   padding: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
  }
  .msgArea {
-  font-size: 0.9rem;
+  font-size: 0.7rem;
+  padding: 0 0.5rem;
+  margin: 0.5rem 0;
+ }
+ ul {
+  padding: 0.5rem;
+  margin: 0;
+  margin-top: -2.5rem;
  }
 }
 </style>

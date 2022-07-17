@@ -9,7 +9,7 @@
      </h1>
 
      <h2>Title:</h2>
-     <p v-if="basicPostStage">
+     <p v-if="basicPostStage || deletePostStage">
       <strong>"{{ post.title }}"</strong>
      </p>
      <div class="commentUpdate" v-if="modifyPostStage">
@@ -21,13 +21,15 @@
       />
      </div>
     </div>
-    <div class="date" v-if="basicPostStage">
+    <div class="date" v-if="basicPostStage || deletePostStage">
      <p>Created on: {{ post.creation_date }}</p>
      <p v-if="post.modify_date">Modified on: {{ post.modify_date }}</p>
     </div>
    </div>
 
-   <div class="mainPost" v-if="basicPostStage">{{ post.message }}</div>
+   <div class="mainPost" v-if="basicPostStage || deletePostStage">
+    {{ post.message }}
+   </div>
    <h2 v-if="modifyPostStage">Message:</h2>
    <div class="commentUpdate" v-if="modifyPostStage">
     <textarea
@@ -96,7 +98,9 @@
     <li class="oneComment" v-for="comment in comments" :key="comment.commentid">
      <div class="commentContent">
       <div class="commentHeader">
-       <p>{{ comment.name }}</p>
+       <p>
+        <strong>{{ comment.name }}</strong>
+       </p>
 
        <div class="date">
         <p>Created on: {{ comment.creation_date }}</p>
@@ -502,10 +506,10 @@ h2 {
  white-space: pre-line;
  background-color: white;
  padding: 2rem;
- border-radius: 0.5rem;
  text-align: justify;
  text-justify: inter-character;
  margin-bottom: 1rem;
+ border-radius: 0.5rem;
 }
 .header {
  margin-bottom: 1rem;
@@ -541,6 +545,7 @@ h2 {
 .oneComment {
  margin: auto;
  padding: 0.5rem;
+
  & .date p {
   padding: 0;
   padding-right: 0.5rem;
@@ -586,7 +591,6 @@ h2 {
  margin-bottom: -1.5rem;
  width: 98%;
  border: none;
- border-radius: 0.5rem;
  resize: none;
  display: block;
  padding: 1rem;
@@ -647,8 +651,36 @@ h2 {
   width: 90%;
   padding: 5rem 0.5rem 1rem 0.5rem;
  }
+ .mainPost {
+  padding: 0.6rem;
+  font-size: 0.8rem;
+ }
  .header h2 {
   margin-top: 0;
+ }
+ #comments {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 0.5rem;
+ }
+ #postComment {
+  margin-bottom: 1rem;
+ }
+ .oneComment {
+  & .date {
+   margin: auto;
+   & p {
+    padding: 0 0.3rem;
+   }
+  }
+  & p {
+   margin: auto;
+   padding: 0.3rem;
+  }
+ }
+ .updateArea {
+  padding: 0.3rem;
  }
 }
 </style>

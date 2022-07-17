@@ -29,6 +29,7 @@
      maxlength="100"
      ref="email"
     />
+    <p>{{ serverMsg }}</p>
    </div>
 
    <div class="profileFields">
@@ -45,12 +46,25 @@
      ref="bio"
     />
    </div>
+
    <div id="profileButtons">
-    <button v-if="basicStage" @click="modifyState()">Modify your data</button>
-    <button v-if="modifyStage" @click="updateProfile()">Confirm Update</button>
-    <button v-if="deleteStage" @click="deleteProfile()">Confirm Delete</button>
-    <button v-if="basicStage" @click="deleteState()">Delete account</button>
-    <button v-if="modifyStage || deleteStage" @click="resetState()">
+    <button class="bodyButton" v-if="basicStage" @click="modifyState()">
+     Modify your data
+    </button>
+    <button class="bodyButton" v-if="modifyStage" @click="updateProfile()">
+     Confirm Update
+    </button>
+    <button class="bodyButton" v-if="deleteStage" @click="deleteProfile()">
+     Confirm Delete
+    </button>
+    <button class="bodyButton" v-if="basicStage" @click="deleteState()">
+     Delete account
+    </button>
+    <button
+     class="bodyButton"
+     v-if="modifyStage || deleteStage"
+     @click="resetState()"
+    >
      Cancel
     </button>
    </div>
@@ -68,6 +82,7 @@ export default {
    basicStage: true,
    modifyStage: false,
    deleteStage: false,
+   serverMsg: "",
   };
  },
  methods: {
@@ -147,6 +162,7 @@ export default {
         };
         localStorage.setItem("user", JSON.stringify(user));
        }
+       this.serverMsg = data;
       });
     })
 
@@ -213,6 +229,9 @@ export default {
  border-radius: 0.5rem;
  text-align: left;
  background-color: white;
+ & p {
+  min-height: 1rem;
+ }
 }
 .inputField {
  font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -234,11 +253,31 @@ export default {
  flex-direction: row;
  justify-content: space-between;
  margin-top: 2rem;
- & button {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: #0d1f3b;
-  color: white;
+}
+.msgLength {
+ width: 70%;
+ margin: auto;
+ margin-bottom: -0.65rem;
+ font-size: 0.7rem;
+ text-align: right;
+}
+@media screen and (max-width: 768px) {
+ #profile {
+  width: 85%;
+  margin-top: 6rem;
+ }
+ .bodyButton {
+  margin: 0 0.2rem;
+ }
+ p {
+  font-size: 0.8rem;
+ }
+ .inputField {
+  font-size: 0.8rem;
+  margin: 0;
+  margin-top: 0.2rem;
+
+  padding: 0.3rem 0 0.4rem 0.3rem;
  }
 }
 </style>
