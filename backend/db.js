@@ -38,7 +38,7 @@ pgtools.createdb(config, "groupomania", function (err, res) {
    )
    .then(() =>
     pool.query(
-     `CREATE TABLE users(
+     `CREATE TABLE usersNew(
           userID uuid DEFAULT gen_random_uuid(),
           name VARCHAR(100) NOT NULL,
           email VARCHAR(100) NOT NULL,
@@ -49,6 +49,7 @@ pgtools.createdb(config, "groupomania", function (err, res) {
           );`
     )
    )
+   .then(() => pool.query(`ALTER TABLE usersNew RENAME TO users;`))
    .then(() =>
     pool.query(
      `CREATE TABLE posts(
@@ -92,7 +93,7 @@ pgtools.createdb(config, "groupomania", function (err, res) {
     )
    )
    .catch((error) => {
-    console.log("Error");
+    console.log("Error creating database");
    });
  }
 });
